@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Hotel Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🏨</div>
+      <div class="logo-name" id="sHotelName">Hotel</div>
+      <div class="logo-sub">Management Suite</div>
+    </div>
+    <div class="nav-label">Main</div>
+    <ul class="snav">
+      <li><button class="navbtn active" onclick="go('dashboard')"><i class="bi bi-speedometer2"></i>Dashboard</button></li>
+      <li><button class="navbtn" onclick="go('rooms')"><i class="bi bi-door-open"></i>Rooms</button></li>
+      <li><button class="navbtn" onclick="go('bookings')"><i class="bi bi-calendar-check"></i>Bookings</button></li>
+      <li><button class="navbtn" onclick="go('customers')"><i class="bi bi-people"></i>Customers</button></li>
+    </ul>
+    <div class="nav-label">Finance</div>
+    <ul class="snav">
+      <li><button class="navbtn" onclick="go('billing')"><i class="bi bi-receipt"></i>Bills</button></li>
+      <li><button class="navbtn" onclick="go('reports')"><i class="bi bi-bar-chart-line"></i>Reports</button></li>
+    </ul>
+    <div class="sidebar-user">
+      <div class="userav" id="uInitial">?</div>
+      <div>
+        <div class="uname" id="uName">Loading…</div>
+        <div class="urole">Staff</div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()" title="Logout"><i class="bi bi-box-arrow-right"></i></button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:11px">
+        <button onclick="document.getElementById('sidebar').classList.toggle('open')" class="btn btn-s btn-ic" id="menuBtn" style="display:none"><i class="bi bi-list"></i></button>
+        <div class="topbar-title" id="tbarTitle">Dashboard</div>
+      </div>
+      <div class="topbar-r">
+        <div class="clock" id="clk">--:--</div>
+        <button class="btn btn-p btn-sm" onclick="go('bookings');openBkModal()"><i class="bi bi-plus-lg"></i> New Booking</button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ========== DASHBOARD ========== -->
+      <section class="page active" id="page-dashboard">
+        <div class="stats" id="dStats">
+          <div class="sc sc-amber"><div class="sc-icon"><i class="bi bi-building"></i></div><div class="sc-val" id="ds-tot">—</div><div class="sc-lbl">Total Rooms</div></div>
+          <div class="sc sc-teal"><div class="sc-icon"><i class="bi bi-check-circle"></i></div><div class="sc-val" id="ds-av">—</div><div class="sc-lbl">Available</div></div>
+          <div class="sc sc-rose"><div class="sc-icon"><i class="bi bi-person-fill"></i></div><div class="sc-val" id="ds-oc">—</div><div class="sc-lbl">Occupied</div></div>
+          <div class="sc sc-blue"><div class="sc-icon"><i class="bi bi-calendar2-check"></i></div><div class="sc-val" id="ds-re">—</div><div class="sc-lbl">Reserved</div></div>
+          <div class="sc sc-purple"><div class="sc-icon"><i class="bi bi-currency-rupee"></i></div><div class="sc-val" id="ds-rev">—</div><div class="sc-lbl">Today's Revenue</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:3fr 2fr;gap:20px">
+          <div class="panel">
+            <div class="ph"><div class="pt"><i class="bi bi-people-fill"></i>Active Guests</div>
+              <button class="btn btn-p btn-sm" onclick="go('bookings');openBkModal()">+ Check-In</button></div>
+            <div id="dGuests"><div class="loading"><div class="spin"></div>Loading…</div></div>
+          </div>
+          <div class="panel">
+            <div class="ph"><div class="pt"><i class="bi bi-receipt"></i>Recent Bills</div>
+              <button class="btn btn-s btn-sm" onclick="go('billing')">All</button></div>
+            <div id="dBills"><div class="loading"><div class="spin"></div>Loading…</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== ROOMS ========== -->
+      <section class="page" id="page-rooms">
+        <div class="panel">
+          <div class="ph"><div class="pt"><i class="bi bi-door-open"></i>Room Management</div>
+            <button class="btn btn-p" onclick="openRoomModal()"><i class="bi bi-plus-lg"></i>Add Room</button></div>
+          <div class="rgrid" id="roomsGrid"><div class="loading"><div class="spin"></div>Loading…</div></div>
+        </div>
+      </section>
+
+      <!-- ========== BOOKINGS ========== -->
+      <section class="page" id="page-bookings">
+        <div class="panel">
+          <div class="ph"><div class="pt"><i class="bi bi-calendar-check"></i>Bookings & Check-Ins</div>
+            <button class="btn btn-p" onclick="openBkModal()"><i class="bi bi-plus-lg"></i>New Booking</button></div>
+          <div id="bkWrap"><div class="loading"><div class="spin"></div>Loading…</div></div>
+        </div>
+      </section>
+
+      <!-- ========== CUSTOMERS ========== -->
+      <section class="page" id="page-customers">
+        <div class="panel">
+          <div class="ph"><div class="pt"><i class="bi bi-people"></i>Customer History</div></div>
+          <div id="custWrap"><div class="loading"><div class="spin"></div>Loading…</div></div>
+        </div>
+      </section>
+
+      <!-- ========== BILLING ========== -->
+      <section class="page" id="page-billing">
+        <div class="panel">
+          <div class="ph"><div class="pt"><i class="bi bi-receipt"></i>Bills History</div></div>
+          <div id="billsWrap"><div class="loading"><div class="spin"></div>Loading…</div></div>
+        </div>
+      </section>
+
+      <!-- ========== REPORTS ========== -->
+      <section class="page" id="page-reports">
+        <div class="rfilters">
+          <div class="fg"><label class="fl">Report Type</label>
+            <select class="fsel" id="rpType" onchange="loadReport()">
+              <option value="daily">Daily</option>
+              <option value="monthly">Monthly</option>
+              <option value="annual">Annual</option>
+            </select></div>
+          <div class="fg"><label class="fl">From</label><input type="date" class="fc" id="rpFrom" onchange="loadReport()"></div>
+          <div class="fg"><label class="fl">To</label><input type="date" class="fc" id="rpTo" onchange="loadReport()"></div>
+          <button class="btn btn-p" onclick="exportExcel()"><i class="bi bi-file-earmark-excel"></i>Excel</button>
+          <button class="btn btn-s" onclick="exportPDF()"><i class="bi bi-filetype-pdf"></i>PDF</button>
+        </div>
+        <div class="sstrip">
+          <div class="si"><div class="sv" id="rp-bk">—</div><div class="sl">Bookings</div></div>
+          <div class="si"><div class="sv" id="rp-rv">—</div><div class="sl">Revenue</div></div>
+          <div class="si"><div class="sv" id="rp-oc">—</div><div class="sl">Occupancy</div></div>
+          <div class="si"><div class="sv" id="rp-av">—</div><div class="sl">Avg Bill</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+          <div class="panel"><div class="ph"><div class="pt"><i class="bi bi-bar-chart"></i>Revenue</div></div>
+            <div class="pb"><div class="chart-wrap"><canvas id="revChart"></canvas></div></div></div>
+          <div class="panel"><div class="ph"><div class="pt"><i class="bi bi-pie-chart"></i>Room Status</div></div>
+            <div class="pb"><div class="chart-wrap"><canvas id="occChart"></canvas></div></div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><div class="pt"><i class="bi bi-table"></i>Detailed Records</div></div>
+          <div id="rpTable"><div class="loading"><div class="spin"></div>Loading…</div></div>
+        </div>
+      </section>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ===== ROOM MODAL ===== -->
+<div class="moverlay" id="roomModal">
+  <div class="mbox">
+    <div class="mhdr"><div class="mtitle" id="rmTitle">Add Room</div>
+      <button class="mclose" onclick="closeMod('roomModal')"><i class="bi bi-x-lg"></i></button></div>
+    <div class="mbody">
+      <input type="hidden" id="rmId">
+      <div class="frow">
+        <div class="fg"><label class="fl">Room Number *</label><input type="text" id="rmNum" class="fc" placeholder="101"></div>
+        <div class="fg"><label class="fl">Room Type *</label>
+          <select id="rmType" class="fsel">
+            <option value="">Select…</option>
+            <option>AC</option><option>Non-AC</option>
+            <option>Deluxe</option><option>Suite</option><option>Standard</option>
+          </select></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Price / Night (₹) *</label><input type="number" id="rmPrice" class="fc" placeholder="1500" min="0"></div>
+        <div class="fg"><label class="fl">Status</label>
+          <select id="rmStatus" class="fsel">
+            <option value="available">Available</option>
+            <option value="maintenance">Maintenance</option>
+          </select></div>
+      </div>
+      <div class="fg"><label class="fl">Description</label><input type="text" id="rmDesc" class="fc" placeholder="Sea view, AC, etc."></div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-s" onclick="closeMod('roomModal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveRoom()"><i class="bi bi-check-lg"></i>Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BOOKING MODAL ===== -->
+<div class="moverlay" id="bkModal">
+  <div class="mbox" style="max-width:660px">
+    <div class="mhdr"><div class="mtitle" id="bkTitle">New Booking / Check-In</div>
+      <button class="mclose" onclick="closeMod('bkModal')"><i class="bi bi-x-lg"></i></button></div>
+    <div class="mbody">
+      <input type="hidden" id="bkId">
+      <div class="sdiv">Guest Information</div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Full Name *</label><input type="text" id="bkName" class="fc" placeholder="Guest name"></div>
+        <div class="fg"><label class="fl">Phone *</label><input type="tel" id="bkPhone" class="fc" placeholder="+91 XXXXX XXXXX"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">ID Proof</label><input type="text" id="bkId2" class="fc" placeholder="Aadhar / PAN / Passport"></div>
+        <div class="fg"><label class="fl">Address</label><input type="text" id="bkAddr" class="fc" placeholder="City / State"></div>
+      </div>
+      <div class="sdiv" style="margin-top:4px">Stay Details</div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Room *</label>
+          <select id="bkRoom" class="fsel" onchange="updatePreview()"><option value="">Select room…</option></select></div>
+        <div class="fg"><label class="fl">Booking Type</label>
+          <select id="bkTyp" class="fsel" onchange="toggleCoField()">
+            <option value="checkin">Immediate Check-In</option>
+            <option value="reservation">Pre-Booking / Reservation</option>
+          </select></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Check-In Date & Time *</label><input type="datetime-local" id="bkCI" class="fc" onchange="updatePreview()"></div>
+        <div class="fg" id="bkCOGrp"><label class="fl">Expected Check-Out</label><input type="datetime-local" id="bkCO" class="fc" onchange="updatePreview()"></div>
+      </div>
+      <div id="bkPreview" style="display:none">
+        <div class="bsum">
+          <div class="bline"><span id="bkRmLbl">Room charge</span><span id="bkRmAmt">₹0</span></div>
+          <div class="bline"><span>Estimated Total</span><span id="bkTot">₹0</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-s" onclick="closeMod('bkModal')">Cancel</button>
+      <button class="btn btn-p" onclick="saveBk()"><i class="bi bi-check-lg"></i>Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BILLING MODAL ===== -->
+<div class="moverlay" id="billModal">
+  <div class="mbox" style="max-width:680px">
+    <div class="mhdr"><div class="mtitle">Generate Bill & Checkout</div>
+      <button class="mclose" onclick="closeMod('billModal')"><i class="bi bi-x-lg"></i></button></div>
+    <div class="mbody">
+      <input type="hidden" id="blBkId">
+      <div class="bsum" id="blGuestSum" style="margin-bottom:14px"></div>
+      <div class="sdiv">Extra Charges</div>
+      <div id="extraRows"></div>
+      <button class="btn btn-s btn-sm" onclick="addExtra()" style="margin-bottom:14px">
+        <i class="bi bi-plus"></i>Add Item</button>
+      <div class="frow">
+        <div class="fg"><label class="fl">Check-Out Time</label><input type="datetime-local" id="blCO" class="fc" oninput="recalc()"></div>
+        <div class="fg"><label class="fl">Payment Mode</label>
+          <select id="blPay" class="fsel">
+            <option>Cash</option><option>UPI</option>
+            <option>Card</option><option>Bank Transfer</option><option>Cheque</option>
+          </select></div>
+      </div>
+      <div class="fg"><label class="fl">Notes</label><input type="text" id="blNotes" class="fc" placeholder="Any notes…"></div>
+      <div class="bsum" id="blFinal"></div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-s" onclick="closeMod('billModal')">Cancel</button>
+      <button class="btn btn-p" onclick="finalizeBill()"><i class="bi bi-receipt"></i>Generate Invoice & Checkout</button>
+    </div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<!-- Firebase Realtime Database SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

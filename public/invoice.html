@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Invoice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:#f0f2f5;font-size:.9rem}
+    .actions{background:#0a0f1e;padding:13px 30px;display:flex;align-items:center;justify-content:space-between}
+    .actions span{color:#94a3b8;font-size:.84rem}
+    .actions div{display:flex;gap:9px}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;border:none;
+         cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:600}
+    .btn-amb{background:linear-gradient(135deg,#d4a43a,#b8860b);color:#0a0f1e}
+    .btn-gh{background:rgba(255,255,255,.1);color:white}
+
+    .wrap{max-width:740px;margin:28px auto;background:white;border-radius:14px;
+          overflow:hidden;box-shadow:0 8px 36px rgba(0,0,0,.14)}
+
+    /* HEADER */
+    .inv-hdr{background:linear-gradient(135deg,#0a0f1e 0%,#162040 65%,#0f1729 100%);
+             padding:38px 46px;display:flex;justify-content:space-between;align-items:flex-start;
+             position:relative;overflow:hidden}
+    .inv-hdr::after{content:'';position:absolute;right:-55px;top:-55px;width:200px;height:200px;
+                    border-radius:50%;background:rgba(212,164,58,.07)}
+    .hbadge{display:inline-block;background:linear-gradient(135deg,#d4a43a,#f0c660);
+            color:#0a0f1e;font-size:.62rem;font-weight:700;letter-spacing:2px;
+            text-transform:uppercase;padding:3px 11px;border-radius:20px;margin-bottom:10px}
+    .hname{font-family:'Playfair Display',serif;font-size:1.85rem;color:white;line-height:1.1}
+    .hcon{color:#94a3b8;font-size:.76rem;margin-top:8px;line-height:1.9}
+    .imeta{text-align:right;color:white;position:relative;z-index:1}
+    .ititle{font-family:'Playfair Display',serif;font-size:1.7rem;color:#d4a43a;margin-bottom:7px}
+    .inum{font-size:.95rem;color:#94a3b8;margin-bottom:3px}
+    .idate{font-size:.78rem;color:#64748b}
+    .paid{margin-top:14px;display:inline-block;border:2px solid #10b981;color:#10b981;
+          padding:3px 13px;border-radius:6px;font-size:.72rem;font-weight:700;letter-spacing:2px}
+
+    /* BODY */
+    .inv-body{padding:38px 46px}
+    .ggrid{display:grid;grid-template-columns:1fr 1fr;gap:0;
+           border:1px solid #e2e8f0;border-radius:11px;overflow:hidden;margin-bottom:28px}
+    .gc{padding:13px 17px;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0}
+    .gc:nth-child(2n){border-right:none}
+    .gc:nth-last-child(-n+2){border-bottom:none}
+    .gl{font-size:.62rem;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin-bottom:2px;font-weight:700}
+    .gv{color:#1e293b;font-weight:600;font-size:.88rem}
+
+    /* STAY BANNER */
+    .sbanner{background:linear-gradient(135deg,#0a0f1e,#162040);border-radius:11px;
+             padding:16px 22px;display:grid;grid-template-columns:repeat(4,1fr);
+             gap:0;margin-bottom:26px}
+    .si{text-align:center;padding:0 10px}
+    .si+.si{border-left:1px solid rgba(212,164,58,.15)}
+    .sl{font-size:.62rem;text-transform:uppercase;letter-spacing:1px;color:#64748b;margin-bottom:3px}
+    .sv{color:#f0c660;font-weight:700;font-size:.92rem}
+
+    /* TABLE */
+    table.ct{width:100%;border-collapse:collapse;margin-bottom:22px}
+    table.ct thead th{background:#f8fafc;color:#64748b;font-size:.68rem;text-transform:uppercase;
+                      letter-spacing:.7px;padding:9px 15px;font-weight:700;
+                      border-bottom:2px solid #e2e8f0;text-align:left}
+    table.ct thead th:last-child{text-align:right}
+    table.ct td{padding:12px 15px;border-bottom:1px solid #f1f5f9;color:#374151;font-size:.86rem}
+    table.ct td:last-child{text-align:right;font-weight:600}
+
+    /* TOTALS */
+    .tbox{background:linear-gradient(135deg,#0a0f1e,#162040);border-radius:11px;
+          padding:18px 22px;margin-bottom:26px}
+    .trow{display:flex;justify-content:space-between;padding:5px 0;color:#94a3b8;font-size:.88rem}
+    .trow.final{color:#d4a43a;font-size:1.25rem;font-weight:700;
+                border-top:1px solid rgba(212,164,58,.2);margin-top:9px;padding-top:13px}
+
+    /* FOOTER */
+    .inv-ftr{border-top:1px solid #e2e8f0;padding:18px 46px;
+             display:flex;justify-content:space-between;align-items:center;background:#f8fafc}
+    .fmsg{color:#94a3b8;font-size:.76rem}
+    .pbadge{background:#dcfce7;color:#166534;padding:4px 13px;border-radius:20px;
+            font-size:.72rem;font-weight:700;letter-spacing:.5px}
+
+    .loading{text-align:center;padding:70px;color:#94a3b8}
+    .err{text-align:center;padding:55px;color:#ef4444}
+
+    @media print{
+      body{background:white}
+      .actions{display:none!important}
+      .wrap{margin:0;border-radius:0;box-shadow:none;max-width:100%}
+      @page{size:A4;margin:14mm}
+      .inv-hdr,.sbanner,.tbox{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    }
+    /* Thermal 80mm */
+    @media print and (max-width:90mm){
+      .wrap{font-size:10px}
+      .inv-hdr{padding:12px;flex-direction:column;gap:10px}
+      .inv-body{padding:12px}
+      .ggrid{grid-template-columns:1fr}
+      .sbanner{grid-template-columns:1fr 1fr}
+      .inv-ftr{flex-direction:column;gap:7px;padding:10px}
+    }
+  </style>
+</head>
+<body>
+
+<div class="actions" id="actBar">
+  <span id="invSub">Loading invoice…</span>
+  <div>
+    <a href="app.html" class="btn btn-gh"><i class="bi bi-arrow-left"></i> Back</a>
+    <button onclick="window.print()" class="btn btn-amb"><i class="bi bi-printer"></i> Print / PDF</button>
+  </div>
+</div>
+
+<div class="wrap" id="invWrap">
+  <div class="loading">Loading invoice…</div>
+</div>
+
+<!-- Firebase Realtime Database -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="js/config.js"></script>
+<script>
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.database();
+
+const fmt = n => HOTEL.currency + parseFloat(n||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmtTs = ts => {
+  if (!ts) return '—';
+  const d = new Date(typeof ts==='number'?ts:ts);
+  return isNaN(d)?'—':d.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+};
+
+auth.onAuthStateChanged(user => {
+  if (!user) { location.href='index.html'; return; }
+  const billId = new URLSearchParams(location.search).get('bill');
+  if (!billId) { showErr('No bill ID provided.'); return; }
+  loadInvoice(billId);
+});
+
+function loadInvoice(billId) {
+  db.ref('bills/' + billId).once('value', snap => {
+    if (!snap.exists()) { showErr('Invoice not found.'); return; }
+    const b = { id: snap.key, ...snap.val() };
+    renderInvoice(b);
+    document.getElementById('invSub').textContent = 'Invoice for ' + b.guestName;
+    document.title = 'Invoice — ' + b.guestName;
+  });
+}
+
+function renderInvoice(b) {
+  const extras = b.extraItems || [];
+  const extraTotal = extras.reduce((s,e)=>s+e.amount,0);
+  const invNum = b.id.slice(-6).toUpperCase();
+  const genDate = b.createdAt ? fmtTs(b.createdAt) : new Date().toLocaleString('en-IN');
+
+  document.getElementById('invWrap').innerHTML = `
+    <div class="inv-hdr">
+      <div>
+        <div class="hbadge">Tax Invoice</div>
+        <div class="hname">${esc(HOTEL.name)}</div>
+        <div class="hcon">${esc(HOTEL.address)}<br>${esc(HOTEL.phone)} · ${esc(HOTEL.email)}</div>
+      </div>
+      <div class="imeta">
+        <div class="ititle">RECEIPT</div>
+        <div class="inum">Invoice #${invNum}</div>
+        <div class="idate">${genDate}</div>
+        <div class="paid">✓ PAID</div>
+      </div>
+    </div>
+
+    <div class="inv-body">
+      <div class="ggrid">
+        <div class="gc"><div class="gl">Guest Name</div><div class="gv">${esc(b.guestName)}</div></div>
+        <div class="gc"><div class="gl">Phone</div><div class="gv">${esc(b.guestPhone)}</div></div>
+        ${b.idProof ? `<div class="gc"><div class="gl">ID Proof</div><div class="gv">${esc(b.idProof)}</div></div>` : ''}
+        ${b.address ? `<div class="gc"><div class="gl">Address</div><div class="gv">${esc(b.address)}</div></div>` : ''}
+        <div class="gc"><div class="gl">Payment Mode</div><div class="gv" style="color:#0d9488">${esc(b.paymentMode)}</div></div>
+        ${b.notes ? `<div class="gc"><div class="gl">Notes</div><div class="gv">${esc(b.notes)}</div></div>` : ''}
+      </div>
+
+      <div class="sbanner">
+        <div class="si"><div class="sl">Room</div><div class="sv">${esc(b.roomNumber)}${b.roomType?' · '+esc(b.roomType):''}</div></div>
+        <div class="si"><div class="sl">Check-In</div><div class="sv">${fmtTs(b.checkIn)}</div></div>
+        <div class="si"><div class="sl">Check-Out</div><div class="sv">${fmtTs(b.checkOut)}</div></div>
+        <div class="si"><div class="sl">Nights</div><div class="sv">${b.daysStayed}</div></div>
+      </div>
+
+      <table class="ct">
+        <thead>
+          <tr><th>#</th><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Room Charges — Room ${esc(b.roomNumber)}${b.roomType?' ('+esc(b.roomType)+')':''}</td>
+            <td>${b.daysStayed} night(s)</td>
+            <td>${fmt(b.roomPrice)}</td>
+            <td>${fmt(b.roomCharges)}</td>
+          </tr>
+          ${extras.map((e,i)=>`
+          <tr>
+            <td>${i+2}</td>
+            <td>${esc(e.description)}</td>
+            <td>1</td>
+            <td>${fmt(e.amount)}</td>
+            <td>${fmt(e.amount)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+
+      <div class="tbox">
+        <div class="trow"><span>Room Charges (${b.daysStayed} × ${fmt(b.roomPrice)})</span><span>${fmt(b.roomCharges)}</span></div>
+        ${extraTotal>0?`<div class="trow"><span>Extra Charges</span><span>${fmt(extraTotal)}</span></div>`:''}
+        <div class="trow final"><span>TOTAL AMOUNT</span><span>${fmt(b.totalAmount)}</span></div>
+      </div>
+    </div>
+
+    <div class="inv-ftr">
+      <div class="fmsg">Thank you for choosing ${esc(HOTEL.name)}.<br>We hope to welcome you again soon. 🙏</div>
+      <div class="pbadge">Paid · ${esc(b.paymentMode)}</div>
+    </div>`;
+}
+
+function showErr(msg) {
+  document.getElementById('invWrap').innerHTML =
+    `<div class="err"><i class="bi bi-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:10px"></i>${msg}</div>`;
+}
+</script>
+</body>
+</html>
