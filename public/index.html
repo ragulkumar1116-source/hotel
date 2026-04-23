@@ -3,70 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Hotel Management — Login</title>
+  <title>Grandeur — Hotel Management</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
-<div class="login-pg">
+
+<div class="login-page" id="loginPage">
   <div class="login-card">
     <div class="login-logo">
       <div class="logo-icon">🏨</div>
-      <h1 id="hname">Hotel</h1>
-      <p>Management System</p>
+      <h1 id="hotelNameLogin">Grandeur</h1>
+      <p>Hotel Management System</p>
     </div>
-    <div id="lalert"></div>
-    <div class="fg">
-      <label class="fl">Email Address</label>
-      <input type="email" id="lemail" class="fc" placeholder="admin@hotel.com">
+    <div id="loginAlert"></div>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input type="email" id="loginEmail" class="form-control" placeholder="admin@hotel.com">
     </div>
-    <div class="fg">
-      <label class="fl">Password</label>
-      <input type="password" id="lpass" class="fc" placeholder="••••••••"
-             onkeydown="if(event.key==='Enter')login()">
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" id="loginPassword" class="form-control" placeholder="••••••••"
+             onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <button onclick="login()" class="btn btn-p" id="lbtn"
-            style="width:100%;justify-content:center;padding:12px;margin-top:6px">
+    <button onclick="doLogin()" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;margin-top:8px" id="loginBtn">
       <i class="bi bi-box-arrow-in-right"></i> Sign In
     </button>
-    <p style="text-align:center;margin-top:18px;font-size:.75rem;color:var(--muted)">
-      Secure access — authorised staff only
+    <p style="text-align:center;margin-top:20px;font-size:0.78rem;color:var(--muted)">
+      Secure access for hotel staff only
     </p>
   </div>
 </div>
 
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="js/config.js"></script>
 <script>
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-  document.getElementById('hname').textContent = HOTEL.name;
-  document.title = HOTEL.name + ' — Login';
 
-  auth.onAuthStateChanged(u => { if (u) location.href = 'app.html'; });
+  document.getElementById('hotelNameLogin').textContent = HOTEL_CONFIG.name;
+  document.title = HOTEL_CONFIG.name + ' — Hotel Management';
 
-  function login() {
-    const e = document.getElementById('lemail').value.trim();
-    const p = document.getElementById('lpass').value;
-    if (!e || !p) { alert('Enter email and password.', 'err'); return; }
-    const btn = document.getElementById('lbtn');
+  auth.onAuthStateChanged(user => {
+    if (user) window.location.href = 'app.html';
+  });
+
+  function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
+    const btn   = document.getElementById('loginBtn');
+    const alert = document.getElementById('loginAlert');
+    alert.innerHTML = '';
+    if (!email || !pass) {
+      showAlert('Please enter email and password.', 'danger'); return;
+    }
     btn.disabled = true;
-    btn.innerHTML = '<span class="spin"></span> Signing in…';
-    auth.signInWithEmailAndPassword(e, p)
-      .then(() => location.href = 'app.html')
-      .catch(() => {
-        alert('Invalid credentials. Please try again.', 'err');
+    btn.innerHTML = '<span class="spinner"></span> Signing in...';
+    auth.signInWithEmailAndPassword(email, pass)
+      .then(() => window.location.href = 'app.html')
+      .catch(err => {
+        showAlert('Invalid credentials. Please try again.', 'danger');
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Sign In';
       });
   }
-  function alert(msg, t) {
-    document.getElementById('lalert').innerHTML =
-      `<div style="padding:10px 14px;border-radius:9px;margin-bottom:14px;font-size:.84rem;
-        background:rgba(225,29,72,.12);border:1px solid rgba(225,29,72,.25);color:#fb7185">
-        <i class="bi bi-exclamation-circle me-1"></i>${msg}</div>`;
+
+  function showAlert(msg, type) {
+    document.getElementById('loginAlert').innerHTML =
+      `<div class="alert alert-${type}"><i class="bi bi-exclamation-circle"></i> ${msg}</div>`;
   }
 </script>
+
 </body>
 </html>
