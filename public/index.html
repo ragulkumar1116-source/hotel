@@ -15,9 +15,7 @@
       <h1 id="hname">Hotel</h1>
       <p>Management System</p>
     </div>
-    
     <div id="lalert"></div>
-
     <div class="fg">
       <label class="fl">Email Address</label>
       <input type="email" id="lemail" class="fc" placeholder="admin@hotel.com">
@@ -27,13 +25,11 @@
       <input type="password" id="lpass" class="fc" placeholder="••••••••"
              onkeydown="if(event.key==='Enter')login()">
     </div>
-
     <button onclick="login()" class="btn btn-p" id="lbtn"
-            style="width:100%;display:flex;justify-content:center;align-items:center;padding:12px;margin-top:6px">
-      <i class="bi bi-box-arrow-in-right me-2"></i> <span>Sign In</span>
+            style="width:100%;justify-content:center;padding:12px;margin-top:6px">
+      <i class="bi bi-box-arrow-in-right"></i> Sign In
     </button>
-
-    <p style="text-align:center;margin-top:18px;font-size:.75rem;color:gray">
+    <p style="text-align:center;margin-top:18px;font-size:.75rem;color:var(--muted)">
       Secure access — authorised staff only
     </p>
   </div>
@@ -42,76 +38,34 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="js/config.js"></script>
-
 <script>
-  // 1. Initialize Firebase
-  // Ensure 'firebaseConfig' is correctly defined in your js/config.js
-  if (typeof firebaseConfig !== 'undefined') {
-    firebase.initializeApp(firebaseConfig);
-  } else {
-    console.error("Firebase config not found! Check js/config.js");
-  }
-
+  firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
+  document.getElementById('hname').textContent = HOTEL.name;
+  document.title = HOTEL.name + ' — Login';
 
-  // Update UI with Hotel Name (Ensure HOTEL object exists in config.js)
-  if (typeof HOTEL !== 'undefined') {
-    document.getElementById('hname').textContent = HOTEL.name;
-    document.title = HOTEL.name + ' — Login';
-  }
+  auth.onAuthStateChanged(u => { if (u) location.href = 'app.html'; });
 
-  // 2. Redirect if already logged in
-  auth.onAuthStateChanged(u => { 
-    if (u) {
-      console.log("User already logged in:", u.email);
-      location.href = 'app.html'; 
-    }
-  });
-
-  // 3. Login Function
   function login() {
     const e = document.getElementById('lemail').value.trim();
     const p = document.getElementById('lpass').value;
-    const alertDiv = document.getElementById('lalert');
+    if (!e || !p) { alert('Enter email and password.', 'err'); return; }
     const btn = document.getElementById('lbtn');
-
-    // Clear previous alerts
-    alertDiv.innerHTML = '';
-
-    if (!e || !p) { 
-      showAlert('Please enter both email and password.'); 
-      return; 
-    }
-
-    // UI Loading State
     btn.disabled = true;
-    btn.querySelector('span').textContent = 'Signing in...';
-
+    btn.innerHTML = '<span class="spin"></span> Signing in…';
     auth.signInWithEmailAndPassword(e, p)
-      .then((userCredential) => {
-        console.log("Login successful!");
-        location.href = 'app.html';
-      })
-      .catch((error) => {
-        console.error("Login Error:", error.code, error.message);
+      .then(() => location.href = 'app.html')
+      .catch(() => {
+        alert('Invalid credentials. Please try again.', 'err');
         btn.disabled = false;
-        btn.querySelector('span').textContent = 'Sign In';
-        
-        // Handle specific errors for the user
-        let friendlyMsg = 'Invalid credentials. Please try again.';
-        if (error.code === 'auth/user-not-found') friendlyMsg = 'No user found with this email.';
-        if (error.code === 'auth/wrong-password') friendlyMsg = 'Incorrect password.';
-        
-        showAlert(friendlyMsg);
+        btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Sign In';
       });
   }
-
-  function showAlert(msg) {
+  function alert(msg, t) {
     document.getElementById('lalert').innerHTML =
       `<div style="padding:10px 14px;border-radius:9px;margin-bottom:14px;font-size:.84rem;
         background:rgba(225,29,72,.12);border:1px solid rgba(225,29,72,.25);color:#fb7185">
-        <i class="bi bi-exclamation-circle me-1"></i> ${msg}
-      </div>`;
+        <i class="bi bi-exclamation-circle me-1"></i>${msg}</div>`;
   }
 </script>
 </body>
