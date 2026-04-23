@@ -26,10 +26,10 @@
              onkeydown="if(event.key==='Enter')login()">
     </div>
     <button onclick="login()" class="btn btn-p" id="lbtn"
-            style="width:100%;justify-content:center;padding:12px;margin-top:6px">
-      <i class="bi bi-box-arrow-in-right"></i> Sign In
+            style="width:100%;justify-content:center;padding:12px;margin-top:6px;display:flex;align-items:center;">
+      <i class="bi bi-box-arrow-in-right me-2"></i> <span>Sign In</span>
     </button>
-    <p style="text-align:center;margin-top:18px;font-size:.75rem;color:var(--muted)">
+    <p style="text-align:center;margin-top:18px;font-size:.75rem;color:gray">
       Secure access — authorised staff only
     </p>
   </div>
@@ -38,34 +38,57 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="js/config.js"></script>
+
 <script>
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  document.getElementById('hname').textContent = HOTEL.name;
-  document.title = HOTEL.name + ' — Login';
+  let auth;
 
-  auth.onAuthStateChanged(u => { if (u) location.href = 'app.html'; });
+  // 1. Initialize only if config loaded
+  if (typeof firebaseConfig !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    
+    if (typeof HOTEL !== 'undefined') {
+      document.getElementById('hname').textContent = HOTEL.name;
+      document.title = HOTEL.name + ' — Login';
+    }
 
+    auth.onAuthStateChanged(u => { if (u) location.href = 'app.html'; });
+  } else {
+    console.error("Config failed to load.");
+    showLocalAlert("Configuration error: Check config.js");
+  }
+
+  // 2. Login Logic
   function login() {
     const e = document.getElementById('lemail').value.trim();
     const p = document.getElementById('lpass').value;
-    if (!e || !p) { alert('Enter email and password.', 'err'); return; }
     const btn = document.getElementById('lbtn');
+
+    if (!auth) {
+      showLocalAlert("Firebase is not initialized.");
+      return;
+    }
+
+    if (!e || !p) { showLocalAlert("Enter email and password."); return; }
+
     btn.disabled = true;
-    btn.innerHTML = '<span class="spin"></span> Signing in…';
+    btn.querySelector('span').textContent = 'Signing in...';
+
     auth.signInWithEmailAndPassword(e, p)
       .then(() => location.href = 'app.html')
-      .catch(() => {
-        alert('Invalid credentials. Please try again.', 'err');
+      .catch((error) => {
+        console.error(error.code);
+        showLocalAlert("Invalid credentials or network error.");
         btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Sign In';
+        btn.querySelector('span').textContent = 'Sign In';
       });
   }
-  function alert(msg, t) {
+
+  function showLocalAlert(msg) {
     document.getElementById('lalert').innerHTML =
-      `<div style="padding:10px 14px;border-radius:9px;margin-bottom:14px;font-size:.84rem;
-        background:rgba(225,29,72,.12);border:1px solid rgba(225,29,72,.25);color:#fb7185">
-        <i class="bi bi-exclamation-circle me-1"></i>${msg}</div>`;
+      `<div style="padding:10px; border-radius:8px; background:rgba(225,29,72,.1); color:#fb7185; border:1px solid rgba(225,29,72,.2); margin-bottom:15px; font-size:.85rem;">
+        <i class="bi bi-exclamation-circle me-1"></i>${msg}
+      </div>`;
   }
 </script>
 </body>
