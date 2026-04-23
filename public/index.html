@@ -43,86 +43,59 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="public/js/config.js"></script>
+<script src="js/config.js"></script>
 
 <script>
-  // Global variable for Firebase Auth
   let auth;
 
-  // 1. Initialize System safely
-  (function init() {
+  // Initialize only if config is actually loaded
+  if (typeof firebaseConfig !== 'undefined') {
     try {
-      // Check if config.js loaded correctly
-      if (typeof firebaseConfig !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
-        auth = firebase.auth();
-        console.log("Firebase initialized.");
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
 
-        // Apply branding from HOTEL object
-        if (typeof HOTEL !== 'undefined') {
-          document.getElementById('hname').textContent = HOTEL.name;
-          document.title = HOTEL.name + ' — Login';
-        }
-
-        // Auto-redirect if already logged in
-        auth.onAuthStateChanged(user => {
-          if (user) window.location.href = 'app.html';
-        });
-
-      } else {
-        showAlert("Config Error: check js/config.js file.");
+      // UI Branding
+      if (typeof HOTEL !== 'undefined') {
+        document.getElementById('hname').textContent = HOTEL.name;
+        document.title = HOTEL.name + ' — Login';
       }
+
+      // Check login state
+      auth.onAuthStateChanged(u => { if (u) location.href = 'app.html'; });
     } catch (e) {
-      console.error("Initialization Failed:", e);
-      showAlert("System Error: Check console logs.");
+      console.error("Firebase Init Error:", e);
     }
-  })();
+  }
 
-  // 2. Sign In Function
   function login() {
-    const email = document.getElementById('lemail').value.trim();
-    const pass = document.getElementById('lpass').value;
-    const btn = document.getElementById('lbtn');
-    const alertBox = document.getElementById('lalert');
-
-    // Prevent errors if Firebase didn't load
     if (!auth) {
-      showAlert("Firebase Connection Failed.");
+      showAlert("Firebase configuration not found. Check config.js.");
       return;
     }
 
-    if (!email || !pass) {
-      showAlert("Please enter email and password.");
-      return;
-    }
+    const e = document.getElementById('lemail').value.trim();
+    const p = document.getElementById('lpass').value;
+    const btn = document.getElementById('lbtn');
 
-    // UI Loading State
+    if (!e || !p) { showAlert('Enter email and password.'); return; }
+    
     btn.disabled = true;
-    btn.querySelector('span').textContent = 'Signing in...';
-    alertBox.innerHTML = ''; 
+    btn.innerHTML = 'Signing in…';
 
-    auth.signInWithEmailAndPassword(email, pass)
-      .then(() => {
-        window.location.href = 'app.html';
-      })
-      .catch((error) => {
-        console.error("Auth Error:", error.code);
+    auth.signInWithEmailAndPassword(e, p)
+      .then(() => location.href = 'app.html')
+      .catch((err) => {
+        showAlert('Invalid credentials. Please try again.');
         btn.disabled = false;
-        btn.querySelector('span').textContent = 'Sign In';
-
-        let friendlyMsg = "Invalid login credentials.";
-        if (error.code === 'auth/network-request-failed') friendlyMsg = "Network error. Check connection.";
-        
-        showAlert(friendlyMsg);
+        btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Sign In';
       });
   }
 
-  // 3. Alert Helper
   function showAlert(msg) {
-    document.getElementById('lalert').innerHTML = `
-      <div style="padding:10px; border-radius:8px; background:rgba(225,29,72,0.1); color:#fb7185; border:1px solid rgba(225,29,72,0.2); margin-bottom:15px; font-size:0.85rem;">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i> ${msg}
-      </div>`;
+    document.getElementById('lalert').innerHTML =
+      `<div style="padding:10px 14px;border-radius:9px;margin-bottom:14px;font-size:.84rem;
+        background:rgba(225,29,72,.12);border:1px solid rgba(225,29,72,.25);color:#fb7185">
+        <i class="bi bi-exclamation-circle me-1"></i>${msg}</div>`;
   }
 </script>
 
