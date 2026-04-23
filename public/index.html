@@ -26,10 +26,10 @@
              onkeydown="if(event.key==='Enter')login()">
     </div>
     <button onclick="login()" class="btn btn-p" id="lbtn"
-            style="width:100%;justify-content:center;padding:12px;margin-top:6px;display:flex;align-items:center;">
-      <i class="bi bi-box-arrow-in-right me-2"></i> <span>Sign In</span>
+            style="width:100%;justify-content:center;padding:12px;margin-top:6px">
+      <i class="bi bi-box-arrow-in-right"></i> Sign In
     </button>
-    <p style="text-align:center;margin-top:18px;font-size:.75rem;color:gray">
+    <p style="text-align:center;margin-top:18px;font-size:.75rem;color:var(--muted)">
       Secure access — authorised staff only
     </p>
   </div>
@@ -37,52 +37,31 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="js/config.js"></script>
-
+<script src="js\config.js"></script>
 <script>
-  // Error handling for Initialization
-  try {
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  document.getElementById('hname').textContent = HOTEL.name;
+  document.title = HOTEL.name + ' — Login';
 
-    if (typeof HOTEL !== 'undefined') {
-      document.getElementById('hname').textContent = HOTEL.name;
-      document.title = HOTEL.name + ' — Login';
-    }
+  auth.onAuthStateChanged(u => { if (u) location.href = 'app.html'; });
 
-    // Live Redirect Check
-    auth.onAuthStateChanged(u => { 
-      if (u) {
-        console.log("Logged in:", u.email);
-        location.href = 'app.html'; 
-      }
-    });
-
-    window.login = function() {
-      const e = document.getElementById('lemail').value.trim();
-      const p = document.getElementById('lpass').value;
-      const btn = document.getElementById('lbtn');
-
-      if (!e || !p) { showAlert('Enter email and password.'); return; }
-      
-      btn.disabled = true;
-      btn.querySelector('span').textContent = 'Signing in...';
-
-      auth.signInWithEmailAndPassword(e, p)
-        .then(() => location.href = 'app.html')
-        .catch((error) => {
-          console.error("Firebase Auth Error:", error.code, error.message);
-          showAlert(error.message);
-          btn.disabled = false;
-          btn.querySelector('span').textContent = 'Sign In';
-        });
-    };
-
-  } catch (err) {
-    console.error("Firebase Init Error:", err);
+  function login() {
+    const e = document.getElementById('lemail').value.trim();
+    const p = document.getElementById('lpass').value;
+    if (!e || !p) { alert('Enter email and password.', 'err'); return; }
+    const btn = document.getElementById('lbtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span> Signing in…';
+    auth.signInWithEmailAndPassword(e, p)
+      .then(() => location.href = 'app.html')
+      .catch(() => {
+        alert('Invalid credentials. Please try again.', 'err');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Sign In';
+      });
   }
-
-  function showAlert(msg) {
+  function alert(msg, t) {
     document.getElementById('lalert').innerHTML =
       `<div style="padding:10px 14px;border-radius:9px;margin-bottom:14px;font-size:.84rem;
         background:rgba(225,29,72,.12);border:1px solid rgba(225,29,72,.25);color:#fb7185">
