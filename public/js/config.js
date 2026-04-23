@@ -25,3 +25,12 @@ const HOTEL = {
   email:    "ragulkrishnan511@gmail.com",
   currency: "₹"
 };
+
+const HOTEL = {
+  name:     "Grand Hotel",
+  tagline:  "Luxury & Comfort",
+  address:  "123 Hotel Street, City, State - 000000",
+  phone:    "+91 00000 00000",
+  email:    "ragul@1234gmail.com",
+  currency: "₹"
+};
