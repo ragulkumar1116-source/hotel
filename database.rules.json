@@ -1,0 +1,15 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "rooms": {
+      ".indexOn": ["roomNumber"]
+    },
+    "bookings": {
+      ".indexOn": ["checkIn"]
+    },
+    "bills": {
+      ".indexOn": ["createdAt"]
+    }
+  }
+}
